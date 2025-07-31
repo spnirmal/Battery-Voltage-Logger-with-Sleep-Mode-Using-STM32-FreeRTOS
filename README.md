@@ -55,6 +55,7 @@ Queue `q_print` acts as a communication medium between the `voltagetask` (produc
 ## Task Design
 
 We skip straight to task creation to focus on core logic. Each task performs an isolated responsibility within the RTOS ecosystem:
+![task creation](https://github.com/spnirmal/Battery-Voltage-Logger-with-Sleep-Mode-Using-STM32-FreeRTOS/blob/main/.assets/image.png)
 
 | Task Name      | Priority | Role                                                                 |
 | -------------- | -------- | -------------------------------------------------------------------- |
@@ -65,6 +66,7 @@ We skip straight to task creation to focus on core logic. Each task performs an 
 > Although `lowpowertask` has a higher priority, it is blocked by default and only runs when notified by `voltagetask`. This guarantees power-saving actions are taken immediately without affecting sampling behavior during normal operation.
 
 ### voltagetask
+![volatge task](https://github.com/spnirmal/Battery-Voltage-Logger-with-Sleep-Mode-Using-STM32-FreeRTOS/blob/main/.assets/voltage.png)
 
 * Reads ADC value from the analog pin (voltage divider connected to coin cell)
 * Converts it to float voltage
@@ -74,7 +76,7 @@ We skip straight to task creation to focus on core logic. Each task performs an 
 * Notifies `logtask` to log each reading
 
 ### logtask
-
+![log task](https://github.com/spnirmal/Battery-Voltage-Logger-with-Sleep-Mode-Using-STM32-FreeRTOS/blob/main/.assets/log.png)
 * Waits for notification using `ulTaskNotifyTake()`
 * Once notified, receives a string from `q_print`
 * Sends the message via UART (USART2)
@@ -84,7 +86,7 @@ Using task notifications instead of semaphores or event groups was a conscious c
 `pdTRUE` is a FreeRTOS-defined macro equivalent to `1`, used in task synchronization APIs such as `ulTaskNotifyTake()` to indicate that the task should reset the notification value before waiting again.
 
 ### lowpowertask
-
+![lowpower task](https://github.com/spnirmal/Battery-Voltage-Logger-with-Sleep-Mode-Using-STM32-FreeRTOS/blob/main/.assets/lowpower.png)
 * Triggered only when voltage falls below a set threshold (e.g., 0.50V)
 * Sends a direct UART message saying "Entering sleep mode"
 * Enables GPIO external interrupt on the user button
@@ -97,7 +99,11 @@ Using task notifications instead of semaphores or event groups was a conscious c
 
 To simulate the low voltage condition, I manually placed a wire between the positive and negative terminals of the coin cell holder, which causes the ADC to read 0V. Since this is below the 0.50V threshold, `voltagetask` suspends itself, and `lowpowertask` takes over, putting the MCU to sleep.
 
+![sleep](https://github.com/spnirmal/Battery-Voltage-Logger-with-Sleep-Mode-Using-STM32-FreeRTOS/blob/main/.assets/sleepop.png)
+
 Upon pressing the user button, the external interrupt wakes the MCU, and `voltagetask` is resumed.
+
+![interrupt](https://github.com/spnirmal/Battery-Voltage-Logger-with-Sleep-Mode-Using-STM32-FreeRTOS/blob/main/.assets/interruptop.png)
 
 This interaction was verified using UART output. Two screenshots were captured to demonstrate the logging and transition into sleep mode.
 
