@@ -107,6 +107,8 @@ Upon pressing the user button, the external interrupt wakes the MCU, and `voltag
 
 This interaction was verified using UART output. Two screenshots were captured to demonstrate the logging and transition into sleep mode.
 
+here is a link that takes you directly to main.c: [main.c](https://github.com/spnirmal/Battery-Voltage-Logger-with-Sleep-Mode-Using-STM32-FreeRTOS/blob/main/firmware/Core/Src/main.c)
+
 ---
 
 ## Why Memory Optimization Was Critical
